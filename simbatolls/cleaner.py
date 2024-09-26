@@ -6,7 +6,7 @@ from io import StringIO
 def cleaner():
     database_url =os.getenv('DATABASE_URL')
 
-    database_url ='postgres://u4e56pe3nc6s5d:p760834971c3619176a981cb76e2e8e2c353b9dd3fbb9572a75b3679d28e7bf99@c27sl642d0a2n4.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com:5432/d481i3se1451l2'
+    # database_url ='postgres://u4e56pe3nc6s5d:p760834971c3619176a981cb76e2e8e2c353b9dd3fbb9572a75b3679d28e7bf99@c27sl642d0a2n4.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com:5432/d481i3se1451l2'
     
     if database_url.startswith("postgres://"):
         database_url = database_url.replace("postgres://", "postgresql://", 1)
@@ -227,7 +227,7 @@ def cleaner():
 def summary_cleaner():
     database_url =os.getenv('DATABASE_URL')
     
-    database_url ='postgres://u4e56pe3nc6s5d:p760834971c3619176a981cb76e2e8e2c353b9dd3fbb9572a75b3679d28e7bf99@c27sl642d0a2n4.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com:5432/d481i3se1451l2'
+    # database_url ='postgres://u4e56pe3nc6s5d:p760834971c3619176a981cb76e2e8e2c353b9dd3fbb9572a75b3679d28e7bf99@c27sl642d0a2n4.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com:5432/d481i3se1451l2'
     
     if database_url.startswith("postgres://"):
         database_url = database_url.replace("postgres://", "postgresql://", 1)
