@@ -1,3 +1,3 @@
 web: gunicorn simbatolls.app:app
 worker: python simbatolls/worker.py
-worker: python -u simbatolls/autoLogin.py
+worker: python simbatolls/autoLogin.py
