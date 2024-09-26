@@ -94,3 +94,6 @@ wcwidth==0.2.13
 Werkzeug==3.0.2
 xlrd==2.0.1
 zope.interface==6.2
+selenium
+webdriver-manager
+chromedriver-binary
