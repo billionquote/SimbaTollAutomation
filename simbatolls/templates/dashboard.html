@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <!-- Bootstrap for styling and responsiveness -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <!-- Plotly.js for data visualization -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            padding-top: 80px; /* Adjust if navbar height changes */
+        }
+        #mainNavbar {
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,.1);
+            background-color: #283890 !important; /* Custom dark blue */
+        }
+        .navbar-brand img {
+            max-height: 40px; /* Adjust based on your logo */
+        }
+        .navbar-nav .nav-link {
+            color: white !important;
+            transition: color 0.3s ease-in-out;
+        }
+        .navbar-nav .nav-link:hover,
+        .navbar-nav .nav-link:focus {
+            color: #a8a8ff !important; /* Lighter shade for hover/focus */
+        }
+        .navbar-nav .nav-item.active .nav-link {
+            color: #ccccff !important; /* Even lighter shade for active link */
+        }
+    </style>
+</head>
+<body>
+    <nav id="mainNavbar" class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <a class="navbar-brand" href="/">
+            <img src="{{ url_for('static', filename='assets/logo/simba.png') }}" alt="Simba Toll-a-Tor">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav">
+                <a class="nav-item nav-link" href="/">Upload Files</a>
+                <a class="nav-item nav-link" href="/summary">Summary</a>
+                <a class="nav-item nav-link" href="/search">Search Results</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class=" h-100 d-flex justify-content-center align-items-center"> 
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <label for="start_date">Start Date:</label>
+                <input type="date" id="start_date" value="{{ start_date }}">
+                <label for="end_date">End Date:</label>
+                <input type="date" id="end_date" value="{{ end_date }}">
+                <button id="updateButton" class="btn btn-primary">Update</button>
+            </div>
+        </div>
+        <div id="tollsChart" style="margin-top: 10px;"></div>
+        <div id="tollSumFeeslChart" style="margin-top: 20px;" ></div>
+        <div id="adminFeesChart" style="margin-top: 20px;" ></div>
+        <div id="tollFeesActualChart" style="margin-top: 20px;" ></div>
+
+    </div>
+
+    <script>
+        function updateTollsChart() {
+            const startDate = document.getElementById('start_date').value;
+            const endDate = document.getElementById('end_date').value;
+    
+            fetch(`/dashboard/tolls_data?start_date=${startDate}&end_date=${endDate}`)
+            .then(response => response.json())
+            .then(data => {
+                var layout = {
+                    title: 'Toll Usage',
+                    xaxis: {
+                        title: 'Month'
+                    },
+                    yaxis: {
+                        title: 'Toll Usage Count'
+                    },
+                    barmode: 'group',
+                    bargap: 0.15,
+                    bargroupgap: 0.1,
+                    bar: {color: 'blue'},
+                    margin: {t: 30, l: 150, r: 30, b: 50},  // Adjusting margins for better layout
+                };
+    
+                Plotly.newPlot('tollsChart', data, layout);
+            })
+            .catch(error => console.error('Error fetching data:', error));
+        }
+        function updateAdminFeesChart() {
+            const startDate = document.getElementById('start_date').value;
+            const endDate = document.getElementById('end_date').value;
+    
+            fetch(`/dashboard/admin_fees_data?start_date=${startDate}&end_date=${endDate}`)
+            .then(response => response.json())
+            .then(data => {
+                var layout = {
+                    title: 'Admin Fees Usage',
+                    xaxis: { title: 'Month' },
+                    yaxis: { title: 'Total Admin Fees' },
+                    barmode: 'group',
+                    bargap: 0.15,
+                    bargroupgap: 0.1,
+                    bar: {color: 'blue'},
+                    margin: {t: 30, l: 150, r: 30, b: 50}
+                };
+                Plotly.newPlot('adminFeesChart', data, layout);
+            })
+            .catch(error => console.error('Error fetching data:', error));
+        }
+        function updateActualTollFeesChart() {
+            const startDate = document.getElementById('start_date').value;
+            const endDate = document.getElementById('end_date').value;
+    
+            fetch(`/dashboard/toll_fees_actual_data?start_date=${startDate}&end_date=${endDate}`)
+            .then(response => response.json())
+            .then(data => {
+                var layout = {
+                    title: 'Toll Fees Usage',
+                    xaxis: { title: 'Month' },
+                    yaxis: { title: 'Total Fees' },
+                    barmode: 'group',
+                    bargap: 0.15,
+                    bargroupgap: 0.1,
+                    bar: {color: 'blue'},
+                    margin: {t: 30, l: 150, r: 30, b: 50}
+                };
+                Plotly.newPlot('tollFeesActualChart', data, layout);
+            })
+            .catch(error => console.error('Error fetching data:', error));
+        }
+
+  
+        function updateSumTollFeesChart() {
+            const startDate = document.getElementById('start_date').value;
+            const endDate = document.getElementById('end_date').value;
+    
+            fetch(`/dashboard/toll_sum_data?start_date=${startDate}&end_date=${endDate}`)
+            .then(response => response.json())
+            .then(data => {
+                var layout = {
+                    title: 'Toll Fees Usage',
+                    xaxis: { title: 'Month' },
+                    yaxis: { title: 'Total Fees' },
+                    barmode: 'group',
+                    bargap: 0.15,
+                    bargroupgap: 0.1,
+                    bar: {color: 'blue'},
+                    margin: {t: 30, l: 150, r: 30, b: 50}
+                };
+                Plotly.newPlot('tollSumFeeslChart', data, layout);
+            })
+            .catch(error => console.error('Error fetching data:', error));
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('updateButton').addEventListener('click', function() {
+                updateTollsChart();
+                updateAdminFeesChart();
+                updateActualTollFeesChart();
+                updateSumTollFeesChart();
+            });
+            
+            // Initial fetch and render on page load
+            updateTollsChart();
+            updateAdminFeesChart();
+            updateActualTollFeesChart();
+            updateSumTollFeesChart();
+        });
+    </script>
+    
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</div> 
+</body>
+</html>
