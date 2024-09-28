@@ -1,155 +1,291 @@
-# -*- coding: utf-8 -*-
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import NoSuchElementException
-from selenium.common.exceptions import NoAlertPresentException
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
-import unittest, time
-import datetime
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker
+import os
+from io import StringIO
 
-class Sibacar3(unittest.TestCase):
-    def setUp(self):
-        chrome_options = Options()
-        chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3")
-        chrome_options.add_argument("--headless")  # Run in headless mode
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--disable-dev-shm-usage")
-        # Add any other options you need here
+def cleaner():
+    database_url =os.getenv('DATABASE_URL')
 
-        # Create a new instance of Chrome
-        # self.driver = webdriver.Chrome(service=Service(executable_path='/usr/local/bin/chromedriver'), options=chrome_options)
-        # self.driver.implicitly_wait(30)
-
-        # Update the path to your ChromeDriver executable
-        self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
-        print(webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options))
-        self.driver.implicitly_wait(30)
-        self.base_url = "https://www.google.com/"
-        self.verificationErrors = []
-        self.accept_next_alert = True
-
+    database_url ='postgres://u4e56pe3nc6s5d:p760834971c3619176a981cb76e2e8e2c353b9dd3fbb9572a75b3679d28e7bf99@c27sl642d0a2n4.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com:5432/d481i3se1451l2'
     
-    def test_sibacar3(self):
-        print("username enterd!!");
-        driver = self.driver
-        
-        # driver.get("https://www.linkt.com.au/login")
-        driver.get("https://manage.linkt.com.au/retailweb/login?username=bz%40simbacarhire.com.au")
-        
+    if database_url.startswith("postgres://"):
+        database_url = database_url.replace("postgres://", "postgresql://", 1)
+    #database_url='postgresql://u8o7lasmharbq1:p671fb6b9ee7752b360f06d7b5cdc0c781427b938d1e3601862a2aeb6a3ea9b2f@cb4l59cdg4fg1k.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com:5432/d99nb7lr00tna7'
+    engine = create_engine(database_url)
+    Session = sessionmaker(bind=engine)
+
+    with Session() as session:
         try:
-            print("driver");
-            # print(driver.get("https://manage.linkt.com.au/retailweb/login?username=bz%40simbacarhire.com.au"));
-        
-            # element = WebDriverWait(driver, 10).until(
-            #     EC.presence_of_element_located((By.ID, "loginForm-username-field"))
-            # )
-            # print("Page loaded and element found!")
-            # # Wait for the username field and interact with it
-            # WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "loginForm-username-field"))).clear()
-            # driver.find_element(By.ID, "loginForm-username-field").send_keys("bz@simbacarhire.com.au")
+            session.begin()
+            count_before = session.execute(text("SELECT COUNT(*) FROM rawdata;")).scalar()
+            print("Number of records before deduplication:", count_before)
+            #session.execute(text("DELETE FROM rawdata;"))
+            #print('I HAVE NOW DELETED EVERYTHING')
             
-            # # Click the login button
-            # driver.find_element(By.XPATH, "//div[@id='page-content']/div[6]/div/div/div/div/div/div/div/div/div/div/div/div/div/div/form/div/div[3]/button/span").click()
-            
-            # # Wait for the next page element to be clickable and interact with it
-            # WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "(.//*[normalize-space(text()) and normalize-space(.)='Taking you to your account'])[1]/following::span[1]"))).click()
-            
-            # driver.get("https://manage.linkt.com.au/retailweb/login?username=bz%40simbacarhire.com.au")
-            driver.find_element(By.ID, "acc-pin").clear()
-            driver.find_element(By.ID, "acc-pin").send_keys("Simbasydbrisbane89!")
-            driver.find_element(By.ID, "submit-button").click()
-            
-            # driver.get("https://manage.linkt.com.au/retailweb/account/home/sydney")
-            
-            # time.sleep(20)  # Wait for 10 seconds
-            # driver.find_element(By.LINK_TEXT, "Export trips").click()
-            
-            # driver.get("https://manage.linkt.com.au/retailweb/trips/triphistory/results/sydney")
-            # driver.find_element(By.XPATH, "//div[@id='inner-wrap']/div[4]/div/div[2]/div/div[2]/a").click()
-            
-            driver.get("https://manage.linkt.com.au/retailweb/trips/triphistory/export/sydney")
-            time.sleep(20)  # Wait for 10 seconds
-            
-            # driver.find_element(By.ID, "startDateId").click()
-            # driver.find_element(By.XPATH, "//div[@id='ui-datepicker-div']/div/a[2]/span").click()
-            # driver.find_element(By.XPATH, "//div[@id='ui-datepicker-div']/div/a[2]/span").click()
-            # driver.find_element(By.XPATH, "//div[@id='ui-datepicker-div']/div/a[2]/span").click()
-            # driver.find_element(By.LINK_TEXT, "8").click()
+            #session.execute(text("DELETE FROM summary;"))
+            #print('I HAVE NOW DELETED EVERYTHING')
+            # Ensuring start_date is treated as a timestamp
+            session.execute(text("""
+                CREATE TEMPORARY TABLE temp_rawdata AS 
+                SELECT 
+                    distinct ON( "# Days",
+                    start_date,
+                    details,
+                    lpn_tag_number,
+                    vehicle_class,
+                    trip_cost,
+                    fleet_id,
+                    end_date,
+                    date,
+                    rego,
+                    res,
+                    ref,
+                    update,
+                    notes,
+                    dropoff,
+                    day,
+                    pickup,
+                    pickup_date,
+                    time_c13,
+                    category,
+                    vehicle,
+                    colour,
+                    items,
+                    insurance,
+                    departure,
+                    next_rental,
+                    pickup_date_time,
+                    rcm_rego,
+                    adminfeeamt)  "# Days",
+                    start_date,
+                    details,
+                    lpn_tag_number,
+                    vehicle_class,
+                    trip_cost,
+                    fleet_id,
+                    end_date,
+                    date,
+                    rego,
+                    res,
+                    ref,
+                    update,
+                    notes,
+                    status,
+                    dropoff,
+                    day,
+                    dropoff_date,
+                    time,
+                    pickup,
+                    pickup_date,
+                    time_c13,
+                    category,
+                    vehicle,
+                    colour,
+                    items,
+                    insurance,
+                    departure,
+                    next_rental,
+                    pickup_date_time,
+                    dropoff_date_time,
+                    rcm_rego,
+                    adminfeeamt
+                FROM rawData
+;
+            """))
 
-            # Get today's day (as a string)
-            # today = str(datetime.date.today())
-            today = datetime.date.today().strftime("%d/%m/%Y")
+            # Define the SQL query
+            # query = text("""
+            #     CREATE TEMPORARY TABLE temp_rawdata AS 
+            #     SELECT DISTINCT ON (
+            #         "# Days",
+            #         start_date,
+            #         details,
+            #         CASE 
+            #             WHEN lpn_tag_number LIKE '%\.0' THEN TRIM(TRAILING '.0' FROM lpn_tag_number)
+            #             ELSE lpn_tag_number
+            #         END,
+            #         vehicle_class,
+            #         trip_cost,
+            #         fleet_id,
+            #         end_date,
+            #         date,
+            #         rego,
+            #         res,
+            #         ref,
+            #         update,
+            #         notes,
+            #         dropoff,
+            #         day,
+            #         pickup,
+            #         pickup_date,
+            #         time_c13,
+            #         category,
+            #         vehicle,
+            #         colour,
+            #         items,
+            #         insurance,
+            #         departure,
+            #         next_rental,
+            #         pickup_date_time,
+            #         rcm_rego,
+            #         adminfeeamt
+            #     )
+            #     "# Days",
+            #     start_date,
+            #     details,
+            #     CASE 
+            #         WHEN lpn_tag_number LIKE '%\.0' THEN TRIM(TRAILING '.0' FROM lpn_tag_number)
+            #         ELSE lpn_tag_number
+            #     END AS lpn_tag_number,
+            #     vehicle_class,
+            #     trip_cost,
+            #     fleet_id,
+            #     end_date,
+            #     date,
+            #     rego,
+            #     res,
+            #     ref,
+            #     update,
+            #     notes,
+            #     status,
+            #     dropoff,
+            #     day,
+            #     dropoff_date,
+            #     time,
+            #     pickup,
+            #     pickup_date,
+            #     time_c13,
+            #     category,
+            #     vehicle,
+            #     colour,
+            #     items,
+            #     insurance,
+            #     departure,
+            #     next_rental,
+            #     pickup_date_time,
+            #     dropoff_date_time,
+            #     rcm_rego,
+            #     adminfeeamt
+            #     FROM rawData;
+            # """)
 
-            print(today);
-
-            # Set the current date in the startDateId field
-            # Use JavaScript to set the value directly in the input field
-            driver.execute_script(f"document.getElementById('startDateId').value = '{today}';")
+            # # Execute the query
+            # session.execute(query)
             
-            time.sleep(10)  # Wait for 10 seconds
+            session.execute(text("DELETE FROM rawdata;"))
 
-            # Now try clicking the button after the overlay is gone
-            driver.find_element(By.ID, "exportButton").click()
-            driver.find_element(By.ID, "exportAndSave").click()
-            time.sleep(30)  # Wait for 10 seconds
+            session.execute(text("""
+                INSERT INTO rawdata
+                SELECT
+                    CAST(row_number() OVER () AS INTEGER) AS id, 
+                    "# Days",
+                    start_date,
+                    details,
+                    lpn_tag_number,
+                    vehicle_class,
+                    trip_cost,
+                    fleet_id,
+                    end_date,
+                    date,
+                    rego,
+                    res,
+                    ref,
+                    update,
+                    notes,
+                    status,
+                    dropoff,
+                    day,
+                    dropoff_date,
+                    time,
+                    pickup,
+                    pickup_date,
+                    time_c13,
+                    category,
+                    vehicle,
+                    colour,
+                    items,
+                    insurance,
+                    departure,
+                    next_rental,
+                    pickup_date_time,
+                    dropoff_date_time,
+                    rcm_rego,
+                    adminfeeamt
+                FROM temp_rawdata;
+            """))
+            count_after = session.execute(text("SELECT COUNT(*) FROM rawdata;")).scalar()
+            print("Number of records after deduplication:", count_after)
 
-            # Wait until the overlay is invisible
-            # WebDriverWait(driver, 10).until(EC.invisibility_of_element_located((By.CLASS_NAME, "fancybox-overlay")))
-            # time.sleep(30)  # Wait for 10 seconds
-
-            # try:
-            #     driver.find_element(By.ID, "exportButton").click()
-            #     driver.find_element(By.ID, "exportAndSave").click()
-            #     # Wait until the overlay is invisible
-            #     WebDriverWait(driver, 10).until(EC.invisibility_of_element_located((By.CLASS_NAME, "fancybox-overlay")))
-            #     print("clickable");
-            
-            # except NoSuchElementException as e:
-            #     print(f"Element not found: {e}")
-            # except Exception as e:
-            #     print(f"An error occurred: {e}")
-
-        
-        except NoSuchElementException as e:
-            print(f"Element not found: {e}")
+            # Calculate and print the number of duplicates removed
+            duplicates_removed = count_before - count_after
+            print("Duplicates removed:", duplicates_removed)
+            session.commit()
+            print("Duplicates removed successfully.")
         except Exception as e:
-            print(f"An error occurred: {e}")
+            session.rollback()
+            print(f"Failed to remove duplicates: {e}")
+def summary_cleaner():
+    database_url =os.getenv('DATABASE_URL')
     
-    def is_element_present(self, how, what):
-        try:
-            self.driver.find_element(by=how, value=what)
-        except NoSuchElementException as e:
-            return False
-        return True
+    database_url ='postgres://u4e56pe3nc6s5d:p760834971c3619176a981cb76e2e8e2c353b9dd3fbb9572a75b3679d28e7bf99@c27sl642d0a2n4.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com:5432/d481i3se1451l2'
     
-    def is_alert_present(self):
-        try:
-            self.driver.switch_to.alert()
-        except NoAlertPresentException as e:
-            return False
-        return True
-    
-    def close_alert_and_get_its_text(self):
-        try:
-            alert = self.driver.switch_to.alert
-            alert_text = alert.text
-            if self.accept_next_alert:
-                alert.accept()
-            else:
-                alert.dismiss()
-            return alert_text
-        finally:
-            self.accept_next_alert = True
-    
-    def tearDown(self):
-        self.driver.quit()
-        self.assertEqual([], self.verificationErrors)
+    if database_url.startswith("postgres://"):
+        database_url = database_url.replace("postgres://", "postgresql://", 1)
+    #database_url='postgresql://u8o7lasmharbq1:p671fb6b9ee7752b360f06d7b5cdc0c781427b938d1e3601862a2aeb6a3ea9b2f@cb4l59cdg4fg1k.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com:5432/d99nb7lr00tna7'
+    engine = create_engine(database_url)
+    Session = sessionmaker(bind=engine)
 
-if __name__ == "__main__":
-    unittest.main()
+    with Session() as session:
+        try:
+            session.begin()
+            count_before = session.execute(text("SELECT COUNT(*) FROM summary;")).scalar()
+            print("Number of records before deduplication:", count_before)
+
+            # Create a temporary table with unique records
+            session.execute(text("""
+                CREATE TEMPORARY TABLE temp_summary AS 
+                SELECT DISTINCT ON (dropoff_date_time, pickup_date_time, total_toll_contract_cost, admin_fee)
+                    contract_number,
+                    num_of_rows,
+                    sum_of_toll_cost,
+                    total_toll_contract_cost,
+                    pickup_date_time,
+                    dropoff_date_time,
+                    admin_fee
+                FROM summary
+                ORDER BY dropoff_date_time, pickup_date_time, total_toll_contract_cost, admin_fee, contract_number;
+            """))
+
+            # Clear the original summary table
+            session.execute(text("DELETE FROM summary;"))
+
+            # Insert unique records back into the summary table
+            session.execute(text("""
+                INSERT INTO summary
+                SELECT
+                    contract_number,
+                    num_of_rows,
+                    sum_of_toll_cost,
+                    total_toll_contract_cost,
+                    pickup_date_time,
+                    dropoff_date_time,
+                    admin_fee
+                FROM temp_summary;
+            """))
+
+            count_after = session.execute(text("SELECT COUNT(*) FROM summary;")).scalar()
+            print("Number of records after deduplication:", count_after)
+
+            # Calculate and print the number of duplicates removed
+            duplicates_removed = count_before - count_after
+            print("Duplicates removed:", duplicates_removed)
+
+            session.commit()
+            print("Duplicates removed successfully.")
+        except Exception as e:
+            session.rollback()
+            print(f"Failed to remove duplicates: {e}")
+
+if __name__ == '__main__':
+    cleaner()
+    summary_cleaner()
