@@ -12,7 +12,6 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 import unittest, time
 import datetime
-import os
 
 class Sibacar3(unittest.TestCase):
     def setUp(self):
@@ -26,15 +25,6 @@ class Sibacar3(unittest.TestCase):
         # Create a new instance of Chrome
         # self.driver = webdriver.Chrome(service=Service(executable_path='/usr/local/bin/chromedriver'), options=chrome_options)
         # self.driver.implicitly_wait(30)
-
-        # Set the default download directory to /tmp
-        chrome_prefs = {
-            "download.default_directory": "/tmp",  # Heroku writable directory
-            "download.prompt_for_download": False,
-            "download.directory_upgrade": True,
-            "safebrowsing.enabled": True
-        }
-        chrome_options.add_experimental_option("prefs", chrome_prefs)
 
         # Update the path to your ChromeDriver executable
         self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
@@ -109,17 +99,21 @@ class Sibacar3(unittest.TestCase):
             driver.find_element(By.ID, "exportAndSave").click()
             time.sleep(30)  # Wait for 10 seconds
 
-            # Verify if the file is present in /tmp
-            
-            files = os.listdir('/tmp')
-            print(f"Files in /tmp: {files}")
+            # Wait until the overlay is invisible
+            # WebDriverWait(driver, 10).until(EC.invisibility_of_element_located((By.CLASS_NAME, "fancybox-overlay")))
+            # time.sleep(30)  # Wait for 10 seconds
 
-            # Check for any .xls file in the directory
-            xls_files = [f for f in files if f.endswith('.xls')]
-            if xls_files:
-                print(f"XLS file found: {xls_files}")
-            else:
-                print("No XLS file found in /tmp.")
+            # try:
+            #     driver.find_element(By.ID, "exportButton").click()
+            #     driver.find_element(By.ID, "exportAndSave").click()
+            #     # Wait until the overlay is invisible
+            #     WebDriverWait(driver, 10).until(EC.invisibility_of_element_located((By.CLASS_NAME, "fancybox-overlay")))
+            #     print("clickable");
+            
+            # except NoSuchElementException as e:
+            #     print(f"Element not found: {e}")
+            # except Exception as e:
+            #     print(f"An error occurred: {e}")
 
         
         except NoSuchElementException as e:
