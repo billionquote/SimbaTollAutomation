@@ -66,6 +66,8 @@ class Sibacar3(unittest.TestCase):
             driver.find_element(By.ID, "submit-button").click()
             
             driver.get("https://manage.linkt.com.au/retailweb/account/home/sydney")
+            
+            time.sleep(20)  # Wait for 10 seconds
             driver.find_element(By.LINK_TEXT, "Export trips").click()
             
             # driver.get("https://manage.linkt.com.au/retailweb/trips/triphistory/results/sydney")
