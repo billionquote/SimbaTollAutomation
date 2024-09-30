@@ -71,7 +71,7 @@ def home():
 # Get the DATABASE_URL, replace "postgres://" with "postgresql://"
 database_url =os.getenv('DATABASE_URL')
 
-# database_url ='postgres://u4e56pe3nc6s5d:p760834971c3619176a981cb76e2e8e2c353b9dd3fbb9572a75b3679d28e7bf99@c27sl642d0a2n4.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com:5432/d481i3se1451l2'
+# database_url ='postgres://u8o7lasmharbq1:p671fb6b9ee7752b360f06d7b5cdc0c781427b938d1e3601862a2aeb6a3ea9b2f@cb4l59cdg4fg1k.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com:5432/d99nb7lr00tna7'
 # database_url ='postgres://uc0bhdfpdneiu3:pe6e0da6fb8b0bbed3d6f7a5a92746f179552c78a947cf3d3b7e1ca62b9d9da99@c11ai4tgvdcf54.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com:5432/d6e265e9ds5t4e'
 # database_url='postgresql://jvkhatepulwmsq:4db6729008abc739d7bfdeefd19c6a6459e38f9b7dbd1b3bda2e95de5eb3d01c@ec2-54-83-138-228.compute-1.amazonaws.com:5432/d33ktsaohkqdr'
 if database_url.startswith("postgres://"):
@@ -325,30 +325,24 @@ def upload_file():
     print('fixed drop off date time')
     print(f" my drop off date time : {rcm_df['Dropoff Date Time']}")
 
-    # rcm_df['RCM_Rego'] = rcm_df.apply(
-    #     lambda row: row['Vehicle'].split(str(row['Pickup']))[0].strip()
-    #     if pd.notna(row['Pickup']) and pd.notna(row['Vehicle']) and str(row['Pickup']) in str(row['Vehicle'])
-    #     else str(row['Vehicle']).strip(),
-    #     axis=1
-    # )
-    # rcm_df['Vehicle'] = rcm_df['Vehicle'].str.split(' ', n=1).str.get(1)
-    # rcm_df['Vehicle'] = rcm_df['Vehicle'].str.split('.').str.get(0)
-    # rcm_df['Vehicle'] = rcm_df['Vehicle'].str.lstrip('0')
-    # rcm_df['Vehicle']= rcm_df['Vehicle'].astype(str)
-    
     rcm_df['Vehicle'] = rcm_df['Vehicle'].astype(str).str.lstrip('0')
-    rcm_df['Vehicle'] =  rcm_df['Vehicle'].astype(str).str.replace(r'\.0$', '', regex=True)
+    rcm_df['Vehicle'] = rcm_df['Vehicle'].astype(str).str.replace(r'\.0$', '', regex=True)
     
     print(rcm_df)
     # Process Toll File
     tolls_df = pd.read_excel(tolls_file)
-    tolls_df['Start Date'] = pd.to_datetime(tolls_df['Start Date'], format="%d/%m/%Y %H:%M")
+    tolls_df['Start Date'] = pd.to_datetime(tolls_df['Start Date'], format="%d %b %Y %I:%M%p")
     tolls_df['Start Date'] = tolls_df['Start Date'].dt.strftime('%Y-%m-%d %H:%M:%S')
     tolls_df['Start Date'] = pd.to_datetime(tolls_df['Start Date']).dt.strftime('%Y-%m-%d %H:%M:%S')
-    tolls_df['End Date'] = pd.to_datetime(tolls_df['End Date'], format="%d/%m/%Y %H:%M")
+    tolls_df['End Date'] = pd.to_datetime(tolls_df['End Date'], format="%d %b %Y %I:%M%p")
     tolls_df['End Date'] = tolls_df['End Date'].dt.strftime('%Y-%m-%d %H:%M:%S')
     tolls_df['End Date'] = pd.to_datetime(tolls_df['End Date']).dt.strftime('%Y-%m-%d %H:%M:%S')
     tolls_df['Trip Cost'] = tolls_df['Trip Cost'].astype(str).str.replace(r'[^0-9.]', '', regex=True)
+
+    tolls_df['LPN/Tag number'] = tolls_df['LPN/Tag number'].astype(str).str.lstrip('0')
+    tolls_df['LPN/Tag number'] = tolls_df['LPN/Tag number'].astype(str).str.replace(r'\.0$', '', regex=True)
+    tolls_df['LPN/Tag number'] = tolls_df['LPN/Tag number'].astype(str)
+    
     #try:
         #tolls_df['LPN/Tag number'] = tolls_df['LPN/Tag number'].astype(int)
     #except ValueError:
@@ -356,9 +350,9 @@ def upload_file():
     tolls_df = tolls_df.drop_duplicates()
     tolls_df['Trip Cost'] = tolls_df['Trip Cost'].astype(float, errors='ignore')
     tolls_df['Trip Cost'] = tolls_df['Trip Cost'].astype(str).str.replace(r'[^0-9.]', '', regex=True)
-
-    tolls_df['LPN/Tag number'] = tolls_df['LPN/Tag number'].astype(str).str.lstrip('0')
     tolls_df['LPN/Tag number'] = tolls_df['LPN/Tag number'].astype(str)
+    tolls_df['LPN/Tag number'] = tolls_df['LPN/Tag number'].astype(str).str.lstrip('0')
+    tolls_df['LPN/Tag number'] = tolls_df['LPN/Tag number'].astype(str).str.replace(r'\.0$', '', regex=True)
     #drop duplicates in the table 
     tolls_df.drop_duplicates(inplace=True)
     # Convert the first 3 rows of each DataFrame to HTML
@@ -609,8 +603,8 @@ def populate_rawdata_from_df(result_df):
 # Usage in your application would not change other than ensuring the DataFrame is passed
 def confirm_upload_task(rcm_data_json, tolls_data_json):
     try: 
-        rcm_df = pd.read_json(StringIO(rcm_json))
-        tolls_df = pd.read_json(StringIO(tolls_json))
+        rcm_df = pd.read_json(StringIO(rcm_data_json))
+        tolls_df = pd.read_json(StringIO(tolls_data_json))
         print(f'RCM_DF FROM CONFIRM UPLOAD: {rcm_df.head(3)}')
         print(f'tolls_DF FROM CONFIRM UPLOAD: {tolls_df.head(3)}')
     except ValueError as e:
@@ -646,7 +640,7 @@ def confirm_upload_task(rcm_data_json, tolls_data_json):
     #     WHERE tolls_df.[Start Date] BETWEEN rcm_df.[Pickup Date Time] AND rcm_df.[Dropoff Date Time]
     # """
     # result_rego = ps.sqldf(query_rego, locals())
-    print(f'result tag I AM RESULT TAG: {result_tag.head(5)}') 
+    # print(f'result tag I AM RESULT TAG: {result_tag.head(5)}') 
     # print(f'result Rego_____: {result_rego.head(5)}') 
     # if result_rego.empty:
     result_df=result_tag
