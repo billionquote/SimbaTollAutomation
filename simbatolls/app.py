@@ -680,8 +680,8 @@ def populate_rawdata_from_df(result_df):
 # Usage in your application would not change other than ensuring the DataFrame is passed
 def confirm_upload_task(rcm_data_json, tolls_data_json):
     try: 
-        rcm_df = pd.read_json(StringIO(rcm_data_json))
-        tolls_df = pd.read_json(StringIO(tolls_data_json))
+        rcm_df = pd.read_json(StringIO(rcm_json))
+        tolls_df = pd.read_json(StringIO(tolls_json))
         print(f'RCM_DF FROM CONFIRM UPLOAD: {rcm_df.head(3)}')
         print(f'tolls_DF FROM CONFIRM UPLOAD: {tolls_df.head(3)}')
     except ValueError as e:
@@ -717,7 +717,7 @@ def confirm_upload_task(rcm_data_json, tolls_data_json):
     #     WHERE tolls_df.[Start Date] BETWEEN rcm_df.[Pickup Date Time] AND rcm_df.[Dropoff Date Time]
     # """
     # result_rego = ps.sqldf(query_rego, locals())
-    # print(f'result tag I AM RESULT TAG: {result_tag.head(5)}') 
+    print(f'result tag I AM RESULT TAG: {result_tag.head(5)}') 
     # print(f'result Rego_____: {result_rego.head(5)}') 
     # if result_rego.empty:
     result_df=result_tag
