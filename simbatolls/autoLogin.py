@@ -3,6 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select  # Import Select class
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
@@ -166,30 +167,32 @@ class Sibacar3(unittest.TestCase):
 
                 # For localhost
 
-                # def get_latest_download_file(directory):
-                #     files = os.listdir(directory)
-                #     paths = [os.path.join(directory, filename) for filename in files if filename.endswith('.xls')]  # Assuming CSV file
-                #     return max(paths, key=os.path.getctime) if paths else None
+                def get_latest_download_file(directory):
+                    files = os.listdir(directory)
+                    paths = [os.path.join(directory, filename) for filename in files if filename.endswith('.xls')]  # Assuming CSV file
+                    return max(paths, key=os.path.getctime) if paths else None
 
-                # download_dir = os.path.join(os.path.expanduser("~"), "Downloads")
-                # latest_file = get_latest_download_file(download_dir)
+                download_dir = os.path.join(os.path.expanduser("~"), "/tmp")
+                latest_file = get_latest_download_file(download_dir)
 
-                # if latest_file:
-                #     print(f"Latest downloaded file: {latest_file}")
-                # else:
-                #     print("No file downloaded.")
+                if latest_file:
+                    print(f"Latest downloaded file: {latest_file}")
+                else:
+                    print("No file downloaded.")
 
-                # downloads_folder = os.path.join(os.path.expanduser("~"), "Downloads")
+                # downloads_folder = os.path.join(os.path.expanduser("~"), "/tmp")
                 # # file_name = "Trips_8284934309_20240918215132.xls"  # Replace with the actual file name
-                # file_name = latest_file;
+                # file_name = xls_files[0];
                 # file_path = os.path.join(downloads_folder, file_name)
 
                 # For Heroku
-                file_path = xls_files
+                # file_path = xls_files[0]
 
-                print(file_path);
+                print("FILE Name: ")
+                print(latest_file);
+                
 
-                driver.find_element(By.ID, "tollsFile").send_keys(file_path)
+                driver.find_element(By.ID, "tollsFile").send_keys(latest_file)
                 time.sleep(2)
                 driver.find_element(By.XPATH, "//form[@id='upload-form']/button").click()
                 time.sleep(20)
