@@ -95,13 +95,26 @@ class Sibacar3(unittest.TestCase):
 
             # Get today's day (as a string)
             # today = str(datetime.date.today())
+
+            # Get today's date
+            todayDate = datetime.date.today()
+
+            # Subtract 3 days from today's date
+            three_days_back = todayDate - datetime.timedelta(days=3)
+
+            # Format the date as dd/mm/yyyy
+            three_days_back_formatted = three_days_back.strftime("%d/%m/%Y")
+
+            print("Today's Date:", todayDate.strftime("%d/%m/%Y"))
+            print("3 Days Back:", three_days_back_formatted)
+
             today = datetime.date.today().strftime("%d/%m/%Y")
 
             print(today);
 
             # Set the current date in the startDateId field
             # Use JavaScript to set the value directly in the input field
-            driver.execute_script(f"document.getElementById('startDateId').value = '{today}';")
+            driver.execute_script(f"document.getElementById('startDateId').value = '{three_days_back_formatted}';")
             
             time.sleep(10)  # Wait for 10 seconds
 
@@ -196,9 +209,9 @@ class Sibacar3(unittest.TestCase):
                 time.sleep(5)
                 driver.find_element(By.XPATH, "//form[@id='upload-form']/button").click()
                 time.sleep(20)
-                # driver.find_element_by_xpath("//form[@id='upload-form']/button").click()
-                driver.find_element(By.ID, "confirmBtn").click()
-                time.sleep(10)
+                # # driver.find_element_by_xpath("//form[@id='upload-form']/button").click()
+                # driver.find_element(By.ID, "confirmBtn").click()
+                # time.sleep(5)
                 # self.assertEqual("Error: starting the job. Wait for progress bar to finish before going to any other page. Check few contract numbers from the new file to ensure it was uploaded.", self.close_alert_and_get_its_text())
                 # time.sleep(125)
 
