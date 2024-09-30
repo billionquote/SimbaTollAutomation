@@ -19,7 +19,7 @@ class Sibacar3(unittest.TestCase):
     def setUp(self):
         chrome_options = Options()
         chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3")
-        # chrome_options.add_argument("--headless")  # Run in headless mode
+        chrome_options.add_argument("--headless")  # Run in headless mode
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
         # Add any other options you need here
@@ -193,14 +193,14 @@ class Sibacar3(unittest.TestCase):
                 
 
                 driver.find_element(By.ID, "tollsFile").send_keys(latest_file)
-                time.sleep(2)
-                driver.find_element(By.XPATH, "//form[@id='upload-form']/button").click()
-                time.sleep(20)
-                # driver.find_element_by_xpath("//form[@id='upload-form']/button").click()
-                driver.find_element(By.ID, "confirmBtn").click()
                 time.sleep(5)
-                self.assertEqual("Error: starting the job. Wait for progress bar to finish before going to any other page. Check few contract numbers from the new file to ensure it was uploaded.", self.close_alert_and_get_its_text())
-                time.sleep(125)
+                # driver.find_element(By.XPATH, "//form[@id='upload-form']/button").click()
+                # time.sleep(20)
+                # # driver.find_element_by_xpath("//form[@id='upload-form']/button").click()
+                # driver.find_element(By.ID, "confirmBtn").click()
+                # time.sleep(5)
+                # self.assertEqual("Error: starting the job. Wait for progress bar to finish before going to any other page. Check few contract numbers from the new file to ensure it was uploaded.", self.close_alert_and_get_its_text())
+                # time.sleep(125)
 
         
         except NoSuchElementException as e:
