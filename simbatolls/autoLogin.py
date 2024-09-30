@@ -14,6 +14,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 import unittest, time
 import datetime
 import os
+import pandas as pd
 
 class Sibacar3(unittest.TestCase):
     def setUp(self):
