@@ -19,7 +19,7 @@ class Sibacar3(unittest.TestCase):
     def setUp(self):
         chrome_options = Options()
         chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3")
-        chrome_options.add_argument("--headless")  # Run in headless mode
+        # chrome_options.add_argument("--headless")  # Run in headless mode
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
         # Add any other options you need here
