@@ -12,6 +12,7 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 import unittest, time
 import datetime
+import os
 
 class Sibacar3(unittest.TestCase):
     def setUp(self):
@@ -25,6 +26,15 @@ class Sibacar3(unittest.TestCase):
         # Create a new instance of Chrome
         # self.driver = webdriver.Chrome(service=Service(executable_path='/usr/local/bin/chromedriver'), options=chrome_options)
         # self.driver.implicitly_wait(30)
+
+        # Set the default download directory to /tmp
+        chrome_prefs = {
+            "download.default_directory": "/tmp",  # Heroku writable directory
+            "download.prompt_for_download": False,
+            "download.directory_upgrade": True,
+            "safebrowsing.enabled": True
+        }
+        chrome_options.add_experimental_option("prefs", chrome_prefs)
 
         # Update the path to your ChromeDriver executable
         self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
@@ -99,21 +109,95 @@ class Sibacar3(unittest.TestCase):
             driver.find_element(By.ID, "exportAndSave").click()
             time.sleep(30)  # Wait for 10 seconds
 
-            # Wait until the overlay is invisible
-            # WebDriverWait(driver, 10).until(EC.invisibility_of_element_located((By.CLASS_NAME, "fancybox-overlay")))
-            # time.sleep(30)  # Wait for 10 seconds
-
-            # try:
-            #     driver.find_element(By.ID, "exportButton").click()
-            #     driver.find_element(By.ID, "exportAndSave").click()
-            #     # Wait until the overlay is invisible
-            #     WebDriverWait(driver, 10).until(EC.invisibility_of_element_located((By.CLASS_NAME, "fancybox-overlay")))
-            #     print("clickable");
+            # Verify if the file is present in /tmp
             
-            # except NoSuchElementException as e:
-            #     print(f"Element not found: {e}")
-            # except Exception as e:
-            #     print(f"An error occurred: {e}")
+            files = os.listdir('/tmp')
+            print(f"Files in /tmp: {files}")
+
+            # Check for any .xls file in the directory
+            xls_files = [f for f in files if f.endswith('.xls')]
+            if xls_files:
+                print(f"XLS file found: {xls_files}")
+            else:
+                print("No XLS file found in /tmp.")
+
+            # DATA uploading has started from next line!
+
+            locations = ["Sydney Airport", "Adelaide Melrose Park", "Brisbane Airport", "Cairns Airport", "Adelaide Airport"]
+            
+            print("locations :{locations}");
+            # Loop through each location (5 times)
+            for location in locations:
+                print(f"Processing location: {location}")
+
+                driver = self.driver
+                # driver.get("https://carcharter-automation-b28424ced80d.herokuapp.com/")
+                # driver.find_element(By.ID, "username").click()
+                # driver.get("https://manage.linkt.com.au/retailweb/trips/triphistory/export/sydney")
+                driver.get("https://carcharter-automation-b28424ced80d.herokuapp.com/")
+
+                
+                driver.find_element(By.ID, "username").clear()
+                driver.find_element(By.ID, "username").send_keys("bz@simbacarhire.com.au")
+                
+                driver.find_element(By.ID, "password").click()
+                driver.find_element(By.ID, "password").clear()
+                driver.find_element(By.ID, "password").send_keys("bzsimba1368?")
+                driver.find_element(By.XPATH, "//form[@id='license-form']/button").click()
+                time.sleep(10)  # Wait for 10 seconds
+                # driver.find_element_by_xpath("//form[@id='license-form']/button").click()
+                
+                driver.find_element(By.ID, "fromDt").click()
+                driver.find_element(By.ID, "fromDt").clear()
+                driver.find_element(By.ID, "fromDt").send_keys("20/09/2024")
+                time.sleep(2)
+                driver.find_element(By.ID, "todt").click()
+                driver.find_element(By.ID, "todt").clear()
+                driver.find_element(By.ID, "todt").send_keys("23/09/2024")
+                time.sleep(2)
+                driver.find_element(By.ID, "location").click()
+                Select(driver.find_element(By.ID, "location")).select_by_visible_text(location)
+                # driver.find_element(By.ID, "location").click()
+                # Select(driver.find_element(By.ID, "location")).select_by_visible_text("Sydney Airport")
+                # driver.find_element(By.ID, "tollsFile").click()
+                # driver.find_element(By.ID, "tollsFile").clear()
+
+                # Find the latest file in the download directory
+
+                # For localhost
+
+                # def get_latest_download_file(directory):
+                #     files = os.listdir(directory)
+                #     paths = [os.path.join(directory, filename) for filename in files if filename.endswith('.xls')]  # Assuming CSV file
+                #     return max(paths, key=os.path.getctime) if paths else None
+
+                # download_dir = os.path.join(os.path.expanduser("~"), "Downloads")
+                # latest_file = get_latest_download_file(download_dir)
+
+                # if latest_file:
+                #     print(f"Latest downloaded file: {latest_file}")
+                # else:
+                #     print("No file downloaded.")
+
+                # downloads_folder = os.path.join(os.path.expanduser("~"), "Downloads")
+                # # file_name = "Trips_8284934309_20240918215132.xls"  # Replace with the actual file name
+                # file_name = latest_file;
+                # file_path = os.path.join(downloads_folder, file_name)
+
+                # For Heroku
+                file_path = xls_files
+
+                print(file_path);
+
+                driver.find_element(By.ID, "tollsFile").send_keys(file_path)
+                time.sleep(2)
+                driver.find_element(By.XPATH, "//form[@id='upload-form']/button").click()
+                time.sleep(20)
+                # driver.find_element_by_xpath("//form[@id='upload-form']/button").click()
+                driver.find_element(By.ID, "confirmBtn").click()
+                time.sleep(5)
+                self.assertEqual("Error: starting the job. Wait for progress bar to finish before going to any other page. Check few contract numbers from the new file to ensure it was uploaded.", self.close_alert_and_get_its_text())
+                time.sleep(125)
 
         
         except NoSuchElementException as e:
