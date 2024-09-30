@@ -15,8 +15,6 @@ import unittest, time
 import datetime
 import os
 import pandas as pd
-import openpyxl
-
 
 class Sibacar3(unittest.TestCase):
     def setUp(self):
@@ -207,15 +205,14 @@ class Sibacar3(unittest.TestCase):
                 print("FILE Name: ")
                 print(latest_file);
 
-                # Open the .xlsx file
-                workbook = openpyxl.load_workbook(latest_file)
-
-                # Access a specific sheet (by name or by index)
-                sheet = workbook.active
-
-                # Read the value from a specific cell (example: A1)
-                cell_value = sheet['A1'].value
-                print(cell_value)
+                # Read the Excel file
+                df = pd.read_excel(latest_file, engine="xlrd")
+                
+                # Print the entire DataFrame
+                print(df)
+                
+                # Or, if you want to print specific columns
+                # print(df[['Column1', 'Column2']])  # Replace with actual column names
                 
 
                 driver.find_element(By.ID, "tollsFile").send_keys(latest_file)
