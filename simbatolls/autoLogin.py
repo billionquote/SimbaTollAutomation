@@ -208,12 +208,12 @@ class Sibacar3(unittest.TestCase):
                 driver.find_element(By.ID, "tollsFile").send_keys(latest_file)
                 time.sleep(5)
                 driver.find_element(By.XPATH, "//form[@id='upload-form']/button").click()
+                time.sleep(40)
+                # driver.find_element_by_xpath("//form[@id='upload-form']/button").click()
+                driver.find_element(By.ID, "confirmBtn").click()
                 time.sleep(20)
-                # # driver.find_element_by_xpath("//form[@id='upload-form']/button").click()
-                # driver.find_element(By.ID, "confirmBtn").click()
-                # time.sleep(5)
-                # self.assertEqual("Error: starting the job. Wait for progress bar to finish before going to any other page. Check few contract numbers from the new file to ensure it was uploaded.", self.close_alert_and_get_its_text())
-                # time.sleep(125)
+                self.assertEqual("Error: starting the job. Wait for progress bar to finish before going to any other page. Check few contract numbers from the new file to ensure it was uploaded.", self.close_alert_and_get_its_text())
+                time.sleep(125)
 
         
         except NoSuchElementException as e:
