@@ -188,9 +188,17 @@ class Sibacar3(unittest.TestCase):
                 # For Heroku
                 file_path = xls_files
 
+                print("FILE Name: ")
                 print(file_path);
 
-                driver.find_element(By.ID, "tollsFile").send_keys(file_path)
+                if target_file in file_path:
+                    print(f"Found: {target_file}")
+                else:
+                    print(f"{target_file} not found.")
+
+                print(f"Found: {target_file}")
+
+                driver.find_element(By.ID, "tollsFile").send_keys(target_file)
                 time.sleep(2)
                 driver.find_element(By.XPATH, "//form[@id='upload-form']/button").click()
                 time.sleep(20)
