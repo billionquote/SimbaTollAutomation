@@ -29,3 +29,4 @@ SQLAlchemy==2.0.29
 urllib3==2.2.1
 webdriver-manager
 chromedriver-binary
+xlrd==2.0.1
