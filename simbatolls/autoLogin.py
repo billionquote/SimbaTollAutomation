@@ -203,6 +203,12 @@ class Sibacar3(unittest.TestCase):
 
                 print("FILE Name: ")
                 print(latest_file);
+
+                 # Read the Excel file
+                df = pd.read_excel(latest_file, engine="xlrd")
+                
+                # Print the entire DataFrame
+                print(df)
                 
 
                 driver.find_element(By.ID, "tollsFile").send_keys(latest_file)
