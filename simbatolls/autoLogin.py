@@ -31,7 +31,7 @@ class Sibacar3(unittest.TestCase):
 
         # Set the default download directory to /tmp
         chrome_prefs = {
-            "download.default_directory": "Downloads",  # Heroku writable directory
+            "download.default_directory": "/tmp",  # Heroku writable directory
             "download.prompt_for_download": False,
             "download.directory_upgrade": True,
             "safebrowsing.enabled": True
@@ -126,8 +126,8 @@ class Sibacar3(unittest.TestCase):
 
             # Verify if the file is present in /tmp
             
-            files = os.listdir('Downloads')
-            print(f"Files in Downloads: {files}")
+            files = os.listdir('/tmp')
+            print(f"Files in /tmp: {files}")
 
             # Check for any .xls file in the directory
             xls_files = [f for f in files if f.endswith('.xls')]
@@ -186,7 +186,7 @@ class Sibacar3(unittest.TestCase):
                     paths = [os.path.join(directory, filename) for filename in files if filename.endswith('.xls')]  # Assuming CSV file
                     return max(paths, key=os.path.getctime) if paths else None
 
-                download_dir = os.path.join(os.path.expanduser("~"), "Downloads")
+                download_dir = os.path.join(os.path.expanduser("~"), "/tmp")
                 latest_file = get_latest_download_file(download_dir)
 
                 if latest_file:
@@ -206,7 +206,7 @@ class Sibacar3(unittest.TestCase):
                 print(latest_file);
 
                 # Read the Excel file
-                df = pd.read_excel("/app/Downloads/Trips_8284934309_20241001024530.xls", engine="xlrd")
+                df = pd.read_excel(latest_file, engine="xlrd")
                 
                 # Print the entire DataFrame
                 print(df)
@@ -215,7 +215,7 @@ class Sibacar3(unittest.TestCase):
                 # print(df[['Column1', 'Column2']])  # Replace with actual column names
                 
 
-                driver.find_element(By.ID, "tollsFile").send_keys("/app/Downloads/Trips_8284934309_20241001024530.xls")
+                driver.find_element(By.ID, "tollsFile").send_keys(latest_file)
                 time.sleep(5)
                 driver.find_element(By.XPATH, "//form[@id='upload-form']/button").click()
                 time.sleep(40)
