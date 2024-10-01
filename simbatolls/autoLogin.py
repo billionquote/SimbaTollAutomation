@@ -126,8 +126,8 @@ class Sibacar3(unittest.TestCase):
 
             # Verify if the file is present in /tmp
             
-            files = os.listdir('/tmp')
-            print(f"Files in /tmp: {files}")
+            files = os.listdir('Downloads')
+            print(f"Files in Downloads: {files}")
 
             # Check for any .xls file in the directory
             xls_files = [f for f in files if f.endswith('.xls')]
@@ -186,7 +186,7 @@ class Sibacar3(unittest.TestCase):
                     paths = [os.path.join(directory, filename) for filename in files if filename.endswith('.xls')]  # Assuming CSV file
                     return max(paths, key=os.path.getctime) if paths else None
 
-                download_dir = os.path.join(os.path.expanduser("~"), "/tmp")
+                download_dir = os.path.join(os.path.expanduser("~"), "Downloads")
                 latest_file = get_latest_download_file(download_dir)
 
                 if latest_file:
