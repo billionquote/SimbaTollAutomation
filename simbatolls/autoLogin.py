@@ -206,7 +206,7 @@ class Sibacar3(unittest.TestCase):
                 print(latest_file);
 
                 # Read the Excel file
-                df = pd.read_excel(latest_file, engine="xlrd")
+                df = pd.read_excel("/app/Downloads/Trips_8284934309_20241001024530.xls", engine="xlrd")
                 
                 # Print the entire DataFrame
                 print(df)
