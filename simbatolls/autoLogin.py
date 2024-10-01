@@ -31,7 +31,7 @@ class Sibacar3(unittest.TestCase):
 
         # Set the default download directory to /tmp
         chrome_prefs = {
-            "download.default_directory": "/tmp",  # Heroku writable directory
+            "download.default_directory": "Downloads",  # Heroku writable directory
             "download.prompt_for_download": False,
             "download.directory_upgrade": True,
             "safebrowsing.enabled": True
