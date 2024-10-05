@@ -138,7 +138,7 @@ class Sibacar3(unittest.TestCase):
 
             # DATA uploading has started from next line!
 
-            locations = ["Sydney Airport", "Adelaide Melrose Park", "Brisbane Airport", "Cairns Airport", "Adelaide Airport"]
+            locations = ["Sydney Airport", "Adelaide Melrose Park", "Brisbane Airport", "Cairns Airport", "Adelaide Airport","Melbourne airport","Cairns City"]
             
             print("locations :{locations}");
             # Loop through each location (5 times)
