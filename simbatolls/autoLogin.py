@@ -3,6 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select  # Import Select class
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
@@ -13,6 +14,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 import unittest, time
 import datetime
 import os
+import pandas as pd
 
 class Sibacar3(unittest.TestCase):
     def setUp(self):
@@ -94,13 +96,26 @@ class Sibacar3(unittest.TestCase):
 
             # Get today's day (as a string)
             # today = str(datetime.date.today())
+
+            # Get today's date
+            todayDate = datetime.date.today()
+
+            # Subtract 3 days from today's date
+            three_days_back = todayDate - datetime.timedelta(days=3)
+
+            # Format the date as dd/mm/yyyy
+            three_days_back_formatted = three_days_back.strftime("%d/%m/%Y")
+
+            print("Today's Date:", todayDate.strftime("%d/%m/%Y"))
+            print("3 Days Back:", three_days_back_formatted)
+
             today = datetime.date.today().strftime("%d/%m/%Y")
 
             print(today);
 
             # Set the current date in the startDateId field
             # Use JavaScript to set the value directly in the input field
-            driver.execute_script(f"document.getElementById('startDateId').value = '{today}';")
+            driver.execute_script(f"document.getElementById('startDateId').value = '{three_days_back_formatted}';")
             
             time.sleep(10)  # Wait for 10 seconds
 
@@ -123,7 +138,7 @@ class Sibacar3(unittest.TestCase):
 
             # DATA uploading has started from next line!
 
-            locations = ["Sydney Airport", "Adelaide Melrose Park", "Brisbane Airport", "Cairns Airport", "Adelaide Airport"]
+            locations = ["Sydney Airport", "Adelaide Melrose Park", "Brisbane Airport", "Cairns Airport", "Adelaide Airport","Melbourne airport","Cairns City"]
             
             print("locations :{locations}");
             # Loop through each location (5 times)
@@ -153,7 +168,7 @@ class Sibacar3(unittest.TestCase):
                 time.sleep(2)
                 driver.find_element(By.ID, "todt").click()
                 driver.find_element(By.ID, "todt").clear()
-                driver.find_element(By.ID, "todt").send_keys("23/09/2024")
+                driver.find_element(By.ID, "todt").send_keys("30/09/2024")
                 time.sleep(2)
                 driver.find_element(By.ID, "location").click()
                 Select(driver.find_element(By.ID, "location")).select_by_visible_text(location)
@@ -166,36 +181,48 @@ class Sibacar3(unittest.TestCase):
 
                 # For localhost
 
-                # def get_latest_download_file(directory):
-                #     files = os.listdir(directory)
-                #     paths = [os.path.join(directory, filename) for filename in files if filename.endswith('.xls')]  # Assuming CSV file
-                #     return max(paths, key=os.path.getctime) if paths else None
+                def get_latest_download_file(directory):
+                    files = os.listdir(directory)
+                    paths = [os.path.join(directory, filename) for filename in files if filename.endswith('.xls')]  # Assuming CSV file
+                    return max(paths, key=os.path.getctime) if paths else None
 
-                # download_dir = os.path.join(os.path.expanduser("~"), "Downloads")
-                # latest_file = get_latest_download_file(download_dir)
+                download_dir = os.path.join(os.path.expanduser("~"), "/tmp")
+                latest_file = get_latest_download_file(download_dir)
 
-                # if latest_file:
-                #     print(f"Latest downloaded file: {latest_file}")
-                # else:
-                #     print("No file downloaded.")
+                if latest_file:
+                    print(f"Latest downloaded file: {latest_file}")
+                else:
+                    print("No file downloaded.")
 
-                # downloads_folder = os.path.join(os.path.expanduser("~"), "Downloads")
+                # downloads_folder = os.path.join(os.path.expanduser("~"), "/tmp")
                 # # file_name = "Trips_8284934309_20240918215132.xls"  # Replace with the actual file name
-                # file_name = latest_file;
+                # file_name = xls_files[0];
                 # file_path = os.path.join(downloads_folder, file_name)
 
                 # For Heroku
-                file_path = xls_files
+                # file_path = xls_files[0]
 
-                print(file_path);
+                print("FILE Name: ")
+                print(latest_file);
 
-                driver.find_element(By.ID, "tollsFile").send_keys(file_path)
-                time.sleep(2)
-                driver.find_element(By.XPATH, "//form[@id='upload-form']/button").click()
-                time.sleep(20)
-                # driver.find_element_by_xpath("//form[@id='upload-form']/button").click()
-                driver.find_element(By.ID, "confirmBtn").click()
+                # Read the Excel file
+                df = pd.read_excel(latest_file, engine="xlrd")
+                
+                # Print the entire DataFrame
+                print(df)
+                
+                # Or, if you want to print specific columns
+                # print(df[['Column1', 'Column2']])  # Replace with actual column names
+                
+
+                driver.find_element(By.ID, "tollsFile").send_keys(latest_file)
                 time.sleep(5)
+                driver.find_element(By.XPATH, "//form[@id='upload-form']/button").click()
+                time.sleep(40)
+                # driver.find_element_by_xpath("//form[@id='upload-form']/button").click()
+                driver.execute_script("document.getElementById('confirmBtn').click();")
+                # driver.find_element(By.ID, "confirmBtn").click()
+                time.sleep(20)
                 self.assertEqual("Error: starting the job. Wait for progress bar to finish before going to any other page. Check few contract numbers from the new file to ensure it was uploaded.", self.close_alert_and_get_its_text())
                 time.sleep(125)
 
